@@ -1,0 +1,161 @@
+\documentclass{article}
+\usepackage{ebproof}
+\usepackage[margin=3cm]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{blindtext}
+\usepackage{datetime}
+\usepackage{fontspec}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage[lighttt]{lmodern}
+\usepackage{listings}
+\usepackage{mathrsfs}
+\usepackage{mathtools}
+\usepackage{pgf,tikz,pgfplots}
+
+\newcommand{\categ}[1]{\ \textnormal{\textsf{#1}}}
+\newcommand{\proofrule}[1]{\textit{#1}}
+\newcommand{\proofline}[2]{{#1}\hfill{#2}}
+  
+\title{CSED433 Computational Logic -- HW 1}
+\author{20220140 Taeyeon Kim}
+\date{Due: Tuesday 24\textsuperscript{th} September, 2024}
+\begin{document}
+\maketitle
+
+\section{Matched Parentheses}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+\subsection{Problem 1}
+\begin{theorem}
+  If s\categ{lparen}, s\categ{mparen}.
+\end{theorem}
+
+\begin{proof}
+by Rule Induction, \newline
+\newline
+Case \begin{prooftree}
+  \infer0[\proofrule{Leps}]{\epsilon\categ{lparen}}
+\end{prooftree} where $s = \epsilon$: \newline
+\proofline{$s$\categ{mparen}}{by the rule \proofrule{Meps}}\newline
+\newline
+Case \begin{prooftree}
+  \hypo{s\textsubscript{1} \categ{lparen}}
+  \hypo{s\textsubscript{2} \categ{lparen}}
+  \infer2[\proofrule{Lseq}]{(s\textsubscript{1})s\textsubscript{2}\categ{lparen}}
+\end{prooftree} where $s = (s_1)s_2$: \newline
+\proofline{$s_1$\categ{mparen}}{by induction hypothesis on $s_1$\categ{lparen}} \newline
+\proofline{$s_2$\categ{mparen}}{by induction hypothesis on $s_2$\categ{lparen}} \newline
+\proofline{$(s_1)$\categ{mparen}}{by the rule \proofrule{Mpar} on $s_1$} \newline
+\proofline{$(s_1)s_2$\categ{mparen}}{by the rule \proofrule{Mseq} on $(s_1)$ and $s_2$} \newline
+\end{proof}
+
+\subsection{Problem 2}
+\begin{lemma} 
+  If $s$\categ{tparen} and $s'$\categ{tparen}, then $ss'$\categ{tparen}.
+\end{lemma}
+
+\begin{proof}
+by Rule Induction, \newline
+\newline
+Case \begin{prooftree}
+  \infer0[\proofrule{Teps}]{\epsilon\categ{tparen}}
+\end{prooftree} where $s'$= \epsilon: \newline
+$ss'$ = $s$\epsilon = $s$\newline
+\proofline{$s$\categ{tparen}}{by assumption $s = \epsilon$}\newline
+\newline
+Case \begin{prooftree}
+  \hypo{s\textsubscript{1}\categ{tparen}}
+  \hypo{s\textsubscript{2}\categ{tparen}}
+  \infer2[\proofrule{Tseq}]{s\textsubscript{1}(s\textsubscript{2})\categ{tparen}}
+\end{prooftree} where $s'$ = $s_1(s_2)$: \newline
+\proofline{$ss' = ss_1(s_2)$}{by assumption $s' = s_1(s_2)$} \newline
+\proofline{``$s$\categ{tparen} implies $ss_1$\categ{tparen}''}{by induction hypothesis on $s$\categ{tparen}} \newline
+\proofline{$ss_1$\categ{tparen}}{by assumption $s$\categ{tparen}} \newline
+\proofline{$ss_1(s_2)$\categ{tparen}}{by the rule \proofrule{Tseq} on $ss_1$\categ{tparen} and $s_2$\categ{tparen}} \newline
+\end{proof}
+
+\subsection{Problem 3}
+\begin{theorem}
+  If s\categ{mparen}, then s\categ{tparen}.
+\end{theorem} 
+
+\begin{proof}
+by Rule Induction, \newline
+\newline
+Case \begin{prooftree}
+  \infer0[\proofrule{Meps}]{\epsilon\categ{mparen}}
+\end{prooftree} where $s = \epsilon$: \newline
+\proofline{s\categ{tparen}}{by the rule \proofrule{Teps}} \newline
+\newline
+Case \begin{prooftree}
+  \hypo{\textit{$s'$}\categ{mparen}}
+  \infer1[\proofrule{Mpar}]{(\textit{$s'$})\categ{mparen}}
+\end{prooftree} where $s = s'$: \newline
+\proofline{$s'$\categ{tparen}}{by induction hypothesis on $s'$\categ{mparen}} \newline
+\proofline{$(s')$\categ{tparen}}{by the rule \proofrule{Tseq} on {\epsilon\categ{tparen}} and {$s'$\categ{tparen}}} \newline
+\newline
+Case \begin{prooftree}
+  \hypo{s\textsubscript{1}\categ{mparen}}
+  \hypo{s\textsubscript{2}\categ{mparen}}
+  \infer2[\proofrule{Mseq}]{s\textsubscript{1}s\textsubscript{2}\categ{mparen}}
+\end{prooftree} where $s = s_1s_2$: \newline
+\proofline{$s_1$\categ{tparen}}{by induction hypothesis on $s_1$\categ{mparen}} \newline
+\proofline{$s_2$\categ{tparen}}{by induction hypothesis on $s_2$\categ{mparen}} \newline
+\proofline{$s_1s_2$\categ{tparen}}{by \textbf{Lemma 1.}} \newline
+\end{proof}
+
+\subsection{Problem 4}
+\begin{theorem}
+  If $s$\categ{lparen}, then s\categ{tparen}.
+\end{theorem}
+
+\begin{lemma}
+  If $s$\categ{tparen} and $s'$\categ{tparen}, then $ss'$\categ{tparen}.
+\end{lemma}
+
+\begin{proof}[Proof of Lemma 2.]
+  by Rule Induction, \newline
+  \newline
+  Case \begin{prooftree}
+    \infer0[\proofrule{Teps}]{\epsilon\categ{tparen}}
+  \end{prooftree} where $s'$= \epsilon: \newline
+  $ss'$ = $s$\epsilon = $s$\newline
+  \proofline{$s$\categ{tparen}}{by assumption $s = \epsilon$}\newline
+  \newline
+  Case \begin{prooftree}
+    \hypo{s\textsubscript{1}\categ{tparen}}
+    \hypo{s\textsubscript{2}\categ{tparen}}
+    \infer2[\proofrule{Tseq}]{s\textsubscript{1}(s\textsubscript{2})\categ{tparen}}
+  \end{prooftree} where $s'$ = $s_1(s_2)$: \newline
+  \proofline{$ss' = ss_1(s_2)$}{by assumption $s' = s_1(s_2)$} \newline
+  \proofline{``$s$\categ{tparen} implies $ss_1$\categ{tparen}''}{by induction hypothesis on $s$\categ{tparen}} \newline
+  \proofline{$ss_1$\categ{tparen}}{by assumption $s$\categ{tparen}} \newline
+  \proofline{$ss_1(s_2)$\categ{tparen}}{by the rule \proofrule{Tseq} on $ss_1$\categ{tparen} and $s_2$\categ{tparen}} \newline
+\end{proof}
+
+\begin{proof}[Proof of Theorem 3.]
+by Rule Induction, \newline
+\newline
+Case \begin{prooftree}
+  \infer0[\proofrule{Leps}]{\epsilon\categ{lparen}}
+\end{prooftree} where $s = \epsilon$: \newline
+\proofline{$s$\categ{tparen}}{by the rule \proofrule{Teps}} \newline
+\newline
+Case \begin{prooftree}
+  \hypo{s\textsubscript{1}\categ{lparen}}
+  \hypo{s\textsubscript{2}\categ{lparen}}
+  \infer2[\proofrule{Lseq}]{(s\textsubscript{1})s\textsubscript{2}\categ{lparen}}
+\end{prooftree} where $s = (s_1)s_2$: \newline
+\newline
+\proofline{$s_1$\categ{tparen}}{by induction hypothesis on $s_1$\categ{lparen}} \newline
+\proofline{$s_2$\categ{tparen}}{by induction hypothesis on $s_2$\categ{lparen}} \newline
+\proofline{$(s_1)$\categ{tparen}}{by the rule \proofrule{Tseq} on $s_1$ and $\epsilon$} \newline
+\proofline{$(s_1)s_2$\categ{tparen}}{by the \textbf{Lemma 2.} on $(s_1)$ and $s_2$} \newline
+\end{proof}
+
+\end{document}
