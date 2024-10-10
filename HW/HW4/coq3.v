@@ -114,9 +114,6 @@ Definition peirce_dne : (((A -> False) -> A) -> A) -> ~~A -> A :=
     A (nna (fun (a: A) => af a))
   ).
 
-Definition proof_test : ~(A \/ ~A) -> False :=
-  fun H : ~(A \/ ~A) =>
-    H (or_intror (fun a : A => H (or_introl a))).
 
 Definition dne_em : (~~(B \/ ~B) -> (B \/ ~B)) -> B \/ ~B :=
   fun (f: ~~(B \/ ~B) -> (B \/ ~B)) => f (
