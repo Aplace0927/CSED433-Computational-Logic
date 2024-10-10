@@ -84,17 +84,45 @@ Definition neg_double : A -> ~~A :=
 Definition tneg : ~~~A -> ~A :=
   fun (tna: ~~~A) (a: A) => 
     tna (fun (af: A->False) => af a).
-  
-Definition weak_dneg : ~~(~~A -> A) := .
+
+Definition weak_dneg : ~~(~~A -> A) :=
+  fun (f : ~(~~A -> A)) => f (
+    fun (g : ~~A) => False_ind A (
+      g 
+      (fun (h: A) => (f (fun x => h)))
+    )
+  ).
 
 (*
  * Classical logic
  *)
 
-Definition em_peirce : A \/ ~A -> ((A -> B) -> A) -> A := .
+Definition em_peirce : A \/ ~A -> ((A -> B) -> A) -> A := 
+  fun (ana: A \/ ~A) (aba: (A->B)->A) =>
+    or_ind
+      (fun (a: A) => a)
+      (fun (na: ~A) => 
+        aba (fun (a': A) => 
+          False_ind B (na a')
+        )
+      )
+      ana.
 
-Definition peirce_dne : (((A -> False) -> A) -> A) -> ~~A -> A := .
+Definition peirce_dne : (((A -> False) -> A) -> A) -> ~~A -> A :=
+  fun (f: ((A->False)->A)->A) (nna: ~~A) => f (
+    fun (af: A->False) => False_ind 
+    A (nna (fun (a: A) => af a))
+  ).
 
-Definition dne_em : (~~(B \/ ~B)-> (B \/ ~B)) -> B \/ ~B := .
+Definition proof_test : ~(A \/ ~A) -> False :=
+  fun H : ~(A \/ ~A) =>
+    H (or_intror (fun a : A => H (or_introl a))).
+
+Definition dne_em : (~~(B \/ ~B) -> (B \/ ~B)) -> B \/ ~B :=
+  fun (f: ~~(B \/ ~B) -> (B \/ ~B)) => f (
+    fun (bn: ~(B \/ ~B)) => bn (
+      or_intror (fun (b: B) => bn (or_introl b))
+    )
+  ).
 
 End ProofTerm. 
