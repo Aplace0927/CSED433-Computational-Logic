@@ -1,0 +1,58 @@
+\documentclass{article}
+\usepackage{ebproof}
+\usepackage[margin=3cm]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{blindtext}
+\usepackage{datetime}
+\usepackage{fontspec}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage[lighttt]{lmodern}
+\usepackage{listings}
+\usepackage{mathrsfs}
+\usepackage{mathtools}
+\usepackage{pgf,tikz,pgfplots}
+
+\newcommand{\categ}[1]{\ \textnormal{\textsf{#1}}}
+\newcommand{\proofrule}[1]{\textit{#1}}
+\newcommand{\proofline}[2]{{#1}\hfill{#2}}
+  
+\title{CSED433 Computational Logic -- HW 2}
+\author{20220140 Taeyeon Kim}
+\date{Due: Tuesday 15\textsuperscript{th} October, 2024}
+\begin{document}
+\maketitle
+
+\section{Matched Parentheses}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+\subsection{Problem 1}
+\begin{theorem}
+  $((A \lor B) \supset C) \supset ((A \supset C) \land (B \supset C)) true$
+\end{theorem}
+
+\begin{proof}
+\newline
+Case \begin{prooftree}
+  \infer0[\proofrule{Leps}]{\epsilon\categ{lparen}}
+\end{prooftree} where $s = \epsilon$: \newline
+\proofline{$s$\categ{mparen}}{by the rule \proofrule{Meps}}\newline
+\newline
+Case \begin{prooftree}
+  \hypo{s\textsubscript{1} \categ{lparen}}
+  \hypo{s\textsubscript{2} \categ{lparen}}
+  \infer2[\proofrule{Lseq}]{(s\textsubscript{1})s\textsubscript{2}\categ{lparen}}
+\end{prooftree} where $s = (s_1)s_2$: \newline
+\proofline{$s_1$\categ{mparen}}{by induction hypothesis on $s_1$\categ{lparen}} \newline
+\proofline{$s_2$\categ{mparen}}{by induction hypothesis on $s_2$\categ{lparen}} \newline
+\proofline{$(s_1)$\categ{mparen}}{by the rule \proofrule{Mpar} on $s_1$} \newline
+\proofline{$(s_1)s_2$\categ{mparen}}{by the rule \proofrule{Mseq} on $(s_1)$ and $s_2$} \newline
+\end{proof}
+
+
+
+\end{document}
