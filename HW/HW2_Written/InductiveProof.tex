@@ -18,41 +18,93 @@
 \newcommand{\categ}[1]{\ \textnormal{\textsf{#1}}}
 \newcommand{\proofrule}[1]{\textit{#1}}
 \newcommand{\proofline}[2]{{#1}\hfill{#2}}
-  
+
+\newcommand{\disjIL}{\lor I\textsubscript{L}}
+\newcommand{\disjIR}{\lor I\textsubscript{R}}
+\newcommand{\disjE}[2]{\lor E$^{{#1},{#2}}$}
+\newcommand{\conjEL}{\land E\textsubscript{L}}
+\newcommand{\conjER}{\land E\textsubscript{R}}
+\newcommand{\conjI}{\land I}
+\newcommand{\implE}{\supset E}
+\newcommand{\implI}[1]{\supset I$^{#1}$}
+
 \title{CSED433 Computational Logic -- HW 2}
 \author{20220140 Taeyeon Kim}
 \date{Due: Tuesday 15\textsuperscript{th} October, 2024}
 \begin{document}
 \maketitle
 
-\section{Matched Parentheses}
-
 \newtheorem{theorem}{Theorem}
 \newtheorem{lemma}{Lemma}
 
-\subsection{Problem 1}
-\begin{theorem}
-  $((A \lor B) \supset C) \supset ((A \supset C) \land (B \supset C)) true$
-\end{theorem}
+\section{Problem 1}
+\begin{lemma}
+  $((A \lor B) \supset C) \supset ((A \supset C) \land (B \supset C))$ $true$
+\end{lemma}
 
-\begin{proof}
-\newline
-Case \begin{prooftree}
-  \infer0[\proofrule{Leps}]{\epsilon\categ{lparen}}
-\end{prooftree} where $s = \epsilon$: \newline
-\proofline{$s$\categ{mparen}}{by the rule \proofrule{Meps}}\newline
-\newline
-Case \begin{prooftree}
-  \hypo{s\textsubscript{1} \categ{lparen}}
-  \hypo{s\textsubscript{2} \categ{lparen}}
-  \infer2[\proofrule{Lseq}]{(s\textsubscript{1})s\textsubscript{2}\categ{lparen}}
-\end{prooftree} where $s = (s_1)s_2$: \newline
-\proofline{$s_1$\categ{mparen}}{by induction hypothesis on $s_1$\categ{lparen}} \newline
-\proofline{$s_2$\categ{mparen}}{by induction hypothesis on $s_2$\categ{lparen}} \newline
-\proofline{$(s_1)$\categ{mparen}}{by the rule \proofrule{Mpar} on $s_1$} \newline
-\proofline{$(s_1)s_2$\categ{mparen}}{by the rule \proofrule{Mseq} on $(s_1)$ and $s_2$} \newline
-\end{proof}
+\begin{center}
+  \begin{prooftree}
+    \infer0[$x$]{A \lor B \supset C \ true}
+    \infer0[$a$]{A \ true}
+    \infer1[\disjIL]{A \lor B \ true}
+    \infer2[\implE]{C \ true}
+    \infer1[\implI{a}]{A \supset C \ true}
+    \infer0[$x$]{A \lor B \supset C \ true}
+    \infer0[$b$]{B \ true}
+    \infer1[\disjIL]{A \lor B \ true}
+    \infer2[\implE]{C \ true}
+    \infer1[\implI{b}]{B \supset C \ true}
+    \infer2[\conjI]{(A \supset B) \land (A \supset C) \ true}
+    \infer1[\implI{x}]{((A \lor B) \supset C) \supset ((A \supset C) \land (B \supset C)) \ true}
+  \end{prooftree}
+\end{center}
 
+\section{Problem 2}
+\begin{lemma}
+  $((A \supset C) \land (B \supset C)) \supset ((A \lor B) \supset C)$ $true$
+\end{lemma}
+
+\begin{center}
+  \begin{prooftree}
+    \infer0[$x$]{(A \supset C) \land (B \supset C) \ true}
+    \infer1[\conjEL]{A \supset C \ true}
+    \infer0[$a$]{A \ true}
+    \infer2[\implE]{C \ true}
+
+    \infer0[$x$]{(A \supset C) \land (B \supset C) \ true}
+    \infer1[\conjER]{B \supset C \ true}
+    \infer0[$b$]{B \ true}
+    \infer2[\implE]{C \ true}
+
+    \infer0[]{A \land B \ true}
+
+    \infer3[\disjE{a}{b}]{C \ true}
+
+    \infer1[\implI{a,b}]{(A \lor B) \supset C \ true}
+
+    \infer1[\implI{x}]{((A \supset C) \land (B \supset C)) \supset ((A \lor B) \supset C) \ true}
+  \end{prooftree}
+\end{center}
+
+\section{Problem 3}
+\begin{lemma}
+  $\lnot\lnot\lnot A \supset \lnot A$ $true$
+\end{lemma}
+\begin{center}
+  \begin{prooftree}
+    \infer0{TODO}
+  \end{prooftree}
+\end{center}
+
+\section{Problem 4}
+\begin{lemma}
+  $(\lnot\lnot(A \lor \lnot A) \supset (A \lor \lnot A)) \supset (A \lor \lnot A)$ $true$
+\end{lemma}
+\begin{center}
+  \begin{prooftree}
+    \infer0{TODO}
+  \end{prooftree}
+\end{center}
 
 
 \end{document}
