@@ -27,6 +27,8 @@
 \newcommand{\conjI}{\land I}
 \newcommand{\implE}{\supset E}
 \newcommand{\implI}[1]{\supset I$^{#1}$}
+\newcommand{\negE}{\lnot E}
+\newcommand{\negI}[1]{\lnot I$^{#1}$}
 
 \title{CSED433 Computational Logic -- HW 2}
 \author{20220140 Taeyeon Kim}
@@ -70,21 +72,18 @@
     \infer1[\conjEL]{A \supset C \ true}
     \infer0[$a$]{A \ true}
     \infer2[\implE]{C \ true}
-
     \infer0[$x$]{(A \supset C) \land (B \supset C) \ true}
     \infer1[\conjER]{B \supset C \ true}
     \infer0[$b$]{B \ true}
     \infer2[\implE]{C \ true}
-
-    \infer0[]{A \land B \ true}
-
+    \hypo{A \lor B \ true}
     \infer3[\disjE{a}{b}]{C \ true}
-
     \infer1[\implI{a,b}]{(A \lor B) \supset C \ true}
-
     \infer1[\implI{x}]{((A \supset C) \land (B \supset C)) \supset ((A \lor B) \supset C) \ true}
   \end{prooftree}
 \end{center}
+
+\newpage
 
 \section{Problem 3}
 \begin{lemma}
@@ -92,7 +91,14 @@
 \end{lemma}
 \begin{center}
   \begin{prooftree}
-    \infer0{TODO}
+    \infer0[$tna$]{\lnot\lnot\lnot A \ true}
+    \infer0[$na$]{\lnot A \ true}
+    \infer0[$a$]{A \ true}
+    \infer2[\negE]{\bot \ true}
+    \infer1[\negI{na}]{\lnot\lnot A \ true}
+    \infer2[\negE]{\bot \ true}
+    \infer1[\negI{a}]{\lnot A \ true}
+    \infer1[\implI{tna}]{\lnot\lnot\lnot A \supset \lnot A \ true}
   \end{prooftree}
 \end{center}
 
@@ -102,7 +108,17 @@
 \end{lemma}
 \begin{center}
   \begin{prooftree}
-    \infer0{TODO}
+    \infer0[$f$]{\lnot\lnot(A \lor \lnot A) \supset (A \lor \lnot A) \ true}
+    \hypo{A \lor \lnot A \ true}
+    \infer0[$a$]{A \ true}
+    \infer0[$na$]{\lnot A \ true}
+    \infer3[\disjE{a}{na}]{A \lor \lnot A \ true}
+    \infer0[$an$]{\lnot(A \lor \lnot A) \ true}
+    \infer2[\negE]{\bot \ true}
+    \infer1[\negI{an}]{\lnot\lnot (A \lor \lnot A) \ true}
+    \infer2[\implE]{A \lor \lnot A \ true}
+    \infer1[\implI{f}]{(\lnot\lnot(A \lor \lnot A) \supset (A \lor \lnot A)) \supset (A \lor \lnot A) \ true}
+
   \end{prooftree}
 \end{center}
 
