@@ -108,17 +108,18 @@
 \end{lemma}
 \begin{center}
   \begin{prooftree}
-    \infer0[$f$]{\lnot\lnot(A \lor \lnot A) \supset (A \lor \lnot A) \ true}
-    \hypo{A \lor \lnot A \ true}
     \infer0[$a$]{A \ true}
-    \infer0[$na$]{\lnot A \ true}
-    \infer3[\disjE{a}{na}]{A \lor \lnot A \ true}
-    \infer0[$an$]{\lnot(A \lor \lnot A) \ true}
+    \infer1[\disjIL]{A \lor \lnot A \ true}
+    \infer0[$an$]{\lnot (A \lor \lnot A) \ true}
+    \infer2[\negE]{\bot \ true}
+    \infer1[\negI{a}]{\lnot A \ true}
+    \infer1[\disjIR]{A \lor \lnot A \ true}
+    \infer0[$an$]{\lnot (A \lor \lnot A) \ true}
     \infer2[\negE]{\bot \ true}
     \infer1[\negI{an}]{\lnot\lnot (A \lor \lnot A) \ true}
+    \infer0[$f$]{\lnot\lnot(A \lor \lnot A) \supset (A \lor  \lnot A) \ true}
     \infer2[\implE]{A \lor \lnot A \ true}
     \infer1[\implI{f}]{(\lnot\lnot(A \lor \lnot A) \supset (A \lor \lnot A)) \supset (A \lor \lnot A) \ true}
-
   \end{prooftree}
 \end{center}
 
