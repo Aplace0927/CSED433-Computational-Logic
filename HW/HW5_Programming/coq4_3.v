@@ -103,17 +103,33 @@ Inductive bin : Set :=
 
 Fixpoint increment_bin (m:bin) : bin :=
 match m with
-| Z => I Z
-| I m' => I m'.
-| D m' => D m'.
+| Z => I (Z)                    (* 0 => 1 *)
+| I m' => D (increment_bin m')  (* 2m + 1 => 2(m + 1) == 2m + 2 *)
+| D m' => I (m')                (* 2m => 2m + 1 *)
 end.
 
-Fixpoint binary_to_unary (m:bin) : nat := (* FILL IN HERE *)
+Fixpoint binary_to_unary (m:bin) : nat :=
+match m with
+| Z => O
+| I m' => 1 + (binary_to_unary m') + (binary_to_unary m')
+| D m' => (binary_to_unary m') + (binary_to_unary m')
+end.
 
 Lemma increment_bin_binary_to_unary_comm: forall m,
   binary_to_unary (increment_bin m) = S (binary_to_unary m).
 Proof.
-Qed. 
+  intros m.
+  induction m.
+  - simpl. reflexivity.
+  - simpl.
+    rewrite -> IHm.
+    rewrite <- plus_n_Sm.
+    rewrite -> plus_Sn_m.
+    reflexivity.
+  - simpl.
+    rewrite -> plus_n_Sm.
+    reflexivity.
+Qed.
 
 (** Part 2. 
  
@@ -131,19 +147,50 @@ Qed.
     (normalize b). Prove it.
 *)
 
-Fixpoint unary_to_binary (m:nat) : bin := (* FILL IN HERE *)
+Fixpoint unary_to_binary (m:nat) : bin :=
+match m with
+| O => Z
+| S m' => increment_bin (unary_to_binary m')
+end.
 
 Lemma unary_binary_unary_eq: forall m,
   binary_to_unary (unary_to_binary m) = m.
 Proof.
+  intro m.
+  induction m.
+  - simpl. reflexivity.
+  - simpl.
+    rewrite -> increment_bin_binary_to_unary_comm.
+    rewrite -> IHm.
+    reflexivity.
 Qed.
 
-Fixpoint normalize (m:bin) : bin := (* FILL IN HERE *).
+(* 
+  Zeroes at the heading might be the problem.
+  For example,
+    (I Z) = 1
+    (I (D Z)) = 01 = 1
+    (I (D (D Z))) = 001 = 1
+  
+  Therefore, we should trim out the (D Z) patterns recursively.
+*)
+Fixpoint normalize (m:bin) : bin :=
+match m with
+| Z => Z   (* Zero would be zero. *)
+| D m' => 
+  match (normalize m') with (* Are further digits are...*)
+  | Z => Z      (* Heading zeroes - Remove them *)
+  | n => D n  (* Else - Conserve *)
+  end
+| I m' => I (normalize m')
+end.
 
 Lemma binary_unary_binary_eq: forall m,
   unary_to_binary (binary_to_unary m) = normalize m.
 Proof.
-Qed. 
+  intro m.
+  induction m.
+Qed.
 
 End InductiveDatatypeThree.
 
