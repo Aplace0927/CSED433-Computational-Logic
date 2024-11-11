@@ -7,6 +7,8 @@
 
 Section InductiveDatatypeThree.
 
+Require Import ArithRing.
+
 (* 
   1. 
   We use the inductive datatype nat defined in the default environment.
@@ -111,9 +113,18 @@ end.
 Fixpoint binary_to_unary (m:bin) : nat :=
 match m with
 | Z => O
-| I m' => 1 + (binary_to_unary m') + (binary_to_unary m')
-| D m' => (binary_to_unary m') + (binary_to_unary m')
+| I m' => 2 * (binary_to_unary m') + 1
+| D m' => 2 * (binary_to_unary m')
 end.
+
+Lemma inc_as_add: forall n: nat,
+  S n = n + 1.
+Proof.
+  intro n.
+  induction n.
+  - simpl. reflexivity.
+  - simpl. rewrite <- IHn. reflexivity.
+Qed.
 
 Lemma increment_bin_binary_to_unary_comm: forall m,
   binary_to_unary (increment_bin m) = S (binary_to_unary m).
@@ -123,11 +134,12 @@ Proof.
   - simpl. reflexivity.
   - simpl.
     rewrite -> IHm.
-    rewrite <- plus_n_Sm.
-    rewrite -> plus_Sn_m.
+    rewrite -> inc_as_add.
+    ring_simplify.
     reflexivity.
   - simpl.
     rewrite -> plus_n_Sm.
+    ring_simplify.
     reflexivity.
 Qed.
 
@@ -185,12 +197,74 @@ match m with
 | I m' => I (normalize m')
 end.
 
+
+
+Definition bit_shift_left (b: bin): bin :=
+  match b with
+    | Z => Z
+    | y => D y
+end.
+
+Lemma bshl_pierce_inc_bin: forall b: bin,
+  increment_bin (increment_bin (bit_shift_left b)) = bit_shift_left (increment_bin b).
+Proof.
+  intro b.
+  induction b.
+  - simpl. reflexivity.
+  - simpl. reflexivity.
+  - simpl. reflexivity.
+Qed.
+
+Lemma bshl_as_add_nat: forall n: nat,
+  unary_to_binary (n + n) = bit_shift_left (unary_to_binary n).
+Proof.
+  intro n.
+  induction n.
+  - simpl. reflexivity.
+  - simpl.
+    rewrite <- plus_n_Sm.
+    simpl.
+    rewrite -> IHn.
+    rewrite -> bshl_pierce_inc_bin.
+    reflexivity.
+Qed.
+
+Lemma bininc_bshl_as_add_nat: forall n: nat,
+  unary_to_binary (n + n + 1) = I (unary_to_binary n).
+Proof.
+  intro n.
+  induction n.
+  - simpl. reflexivity.
+  - simpl.
+    rewrite <- (plus_n_Sm (n)).
+    rewrite -> plus_Sn_m.
+    simpl.
+    rewrite -> IHn.
+    simpl.
+    reflexivity.
+Qed.
+
+
 Lemma binary_unary_binary_eq: forall m,
   unary_to_binary (binary_to_unary m) = normalize m.
 Proof.
-  intro m.
-  induction m.
+  intro b.
+  induction b.
+  - simpl. reflexivity.
+  - simpl.
+    rewrite <- plus_n_O.
+    rewrite -> bininc_bshl_as_add_nat.
+    rewrite -> IHb.
+    unfold bit_shift_left.
+    reflexivity.
+  - simpl.
+    rewrite <- plus_n_O.
+    rewrite -> bshl_as_add_nat.
+    rewrite -> IHb.
+    destruct normalize.
+    + simpl. reflexivity.
+    + simpl. reflexivity.
+    + simpl. reflexivity.
 Qed.
 
 End InductiveDatatypeThree.
-
