@@ -173,57 +173,331 @@ induction m.
 
   The instructor encourages students to try both approaches.
 *)
-Lemma add_same: forall (n m a: nat), n = m -> n + a = m + a.
+
+Lemma mul_le : forall (n m a : nat), n <= m -> n * a <= m * a.
+Proof.
+  intros n m a H.
+  induction a.
+  - rewrite -> Nat.mul_0_r.
+    apply Nat.le_0_l. 
+  - rewrite -> Nat.mul_succ_r.
+    rewrite -> Nat.mul_succ_r.
+    apply Nat.add_le_mono.
+    + apply IHa.
+    + assumption.
+
+Lemma mul_same: forall (n m a: nat), a <> 0 -> n = m <-> a * n = a * m.
 Proof.
     intros n m a H.
-    rewrite H.
+    split.
+    - intro Heq.
+      rewrite -> Heq.
+      reflexivity.
+    - intro Hml.
+      apply Nat.mul_cancel_l with (p := a).
+      + assumption.
+      + assumption.
+Qed.
+
+Lemma mul_const_zero: forall (n m: nat), n * m = 0 -> n <> 0 -> m = 0.
+Proof.
+    intros n m H1 H2.
+    destruct m.
+    - reflexivity.
+    - destruct n.
+      + apply False_ind.
+        apply H2.
+        reflexivity.
+      + discriminate H1.
+Qed.
+
+Lemma sqr_eq_0: forall (n: nat), n * n = 0 -> n = 0.
+Proof.
+    intros n H.
+    destruct n.
+    - reflexivity.
+    - apply mul_const_zero with (n := S n) (m := S n) in H.
+      + assumption.
+      + apply Nat.neq_succ_0.
+Qed.
+
+Lemma even_odd_diff: forall (e o: nat), Nat.Even e -> Nat.Odd o -> e = o -> False.
+Proof.
+    intros n m HE HO Hf.
+    apply Nat.Even_Odd_False with (x := n).
+    - assumption.
+    - rewrite -> Hf.
+      assumption.
+Qed.
+
+Lemma mul_is_monotonic: forall (n k: nat), k <> 0 -> n <= k * (n).
+Proof.
+  intros n k H.
+  induction k.
+  - apply False_ind.
+    apply H.
+    reflexivity.
+  - rewrite -> Nat.mul_comm.
+    rewrite -> Nat.mul_succ_r.
+    rewrite -> Nat.add_comm.
+    apply Nat.le_add_r.
+Qed.
+
+
+Lemma square_even_then_root_even: forall n: nat, Nat.Even (n * n) -> Nat.Even n.
+Proof.
+  intros n H.
+  destruct (Nat.Even_or_Odd n) as [He | Ho].
+  - assumption.
+  - apply False_ind.
+    apply Nat.Odd_mul with (n := n) (m := n) in Ho.
+    + apply Nat.Even_Odd_False with (x := n * n).
+      * assumption.
+      * assumption.
+    + assumption.
+Qed.
+
+Lemma mul_is_strictly_monotonic: forall (n k: nat), n <> 0 -> k <> 0 -> k <> 1 -> n < k * n.
+Proof.
+  intros n k N0 H0 H1.
+  destruct k as [|[|m]].
+  - apply False_ind.
+    apply H0.
+    reflexivity.
+  - apply False_ind.
+    apply H1.
+    reflexivity.
+  - replace n with (1 * n) at 1 by ring.
+    apply Nat.mul_lt_mono_pos_r.
+    + destruct Nat.eq_0_gt_0_cases with (n := n).
+      * apply False_ind.
+        apply N0.
+        assumption.
+      * assumption.
+    + apply Nat.lt_pred_lt_succ.
+      apply Nat.lt_0_succ.
+Qed.
+
+
+Lemma div2_even_mul2: forall n: nat, Nat.Even n -> 2 * (div2 n) = n.
+Proof.
+  intros n H.
+  destruct H as [k Hk].
+  rewrite Hk.
+  rewrite -> Nat.div2_double.
+  reflexivity.
+Qed.
+
+Lemma mul_is_monotonic': forall (n: nat), n <> 0 -> n < 2 * n.
+Proof.
+  intros n H.
+  induction n.
+  - simpl.
+    apply False_ind.
+    apply H.
+    reflexivity.
+  - rewrite -> Nat.mul_comm.
+    rewrite -> Nat.mul_succ_r.
+    rewrite -> Nat.add_comm.
+    replace ((S n) * 1) with (S n) by ring.
+    apply Nat.lt_add_pos_r.
+    apply Nat.lt_0_succ.
+Qed.
+
+Lemma succ_minus_1: forall (n: nat), n = S n - 1.
+Proof.
+  intros n.
+  induction n.
+  - reflexivity.
+  - simpl.
     reflexivity.
 Qed.
 
-Lemma mul_same: forall (n m a: nat), n = m -> a * n = a * m.
+Lemma main_thm_aux: forall (m : nat) (n : nat), n < m -> forall p, n * n = double (p * p) ->  p = 0.
 Proof.
-    intros n m a H.
-    rewrite H.
-    reflexivity.
+  induction m.
+    - intros n H p Hf.
+      apply False_ind.
+      rewrite -> Nat.lt_nge in H.
+      apply H.
+      apply Nat.le_0_l.
+    - intros n H p Hf.
+      destruct n.
+      + simpl in Hf.
+        unfold double in Hf.
+        ring_simplify in Hf.
+        apply sqr_eq_0.
+        apply mul_same with (a := 2).
+        * apply Nat.neq_succ_0.
+        * ring_simplify.
+        symmetry.
+        assumption.
+      + destruct (Nat.Even_or_Odd (S n)) as [HE | HO].
+        * destruct HE as [k HEqv].
+          remember (S n) as n'.
+          assert (Hn'z: 0 < n'). {
+            rewrite -> Heqn'.
+            apply Nat.lt_0_succ.
+          }
+          assert (Hkn: k < n'). {
+            rewrite -> HEqv.
+            apply mul_is_monotonic'.
+            unfold not.
+            intro Hk0.
+            rewrite -> Hk0 in HEqv.
+            ring_simplify in HEqv.
+            rewrite -> HEqv in Heqn'.
+            discriminate Heqn'.
+          }
+          rewrite -> HEqv in Hf.
+          unfold double in Hf.
+          rewrite -> Nat.mul_assoc in Hf.
+          ring_simplify in Hf.
+          replace (4 * k * k) with (2 * (2 * k * k)) in Hf by ring.
+          replace (2 * p * p) with (2 * (p * p)) in Hf by ring.
+          rewrite -> Nat.mul_cancel_l with (p := 2) in Hf.
+
+          assert (Hpeven: Nat.Even p). {
+            apply square_even_then_root_even.
+            rewrite <- Hf.
+            exists (k * k).
+            ring.
+          }
+
+          remember (div2 p) as l.
+
+          assert (Hl2: 2 * l = p). {
+            rewrite -> Heql.
+            apply div2_even_mul2.
+            assumption.
+          }
+
+          assert (Hne: Nat.Even n'). {
+            rewrite -> HEqv.
+            exists k.
+            reflexivity.
+          }
+
+          rewrite <- Hl2 in Hf.
+          rewrite -> Nat.mul_assoc in Hf.
+          ring_simplify in Hf.
+
+          replace (4 * l * l) with (2 * (2 * l * l)) in Hf by ring.
+          replace (2 * k * k) with (2 * (k * k)) in Hf by ring.
+          rewrite -> Nat.mul_cancel_l with (p := 2) in Hf.
+
+          rewrite <- Hl2.
+          replace 0 with (2 * 0) at 2 by ring.
+          rewrite <- mul_same. 
+          apply IHm with (n := k) (p := l).
+          
+          apply Nat.le_lt_trans with (n := k) (m := 2 * k - 1) (p := m).
+          
+          rewrite <- HEqv.
+          rewrite -> Heqn'.
+          rewrite <- succ_minus_1.
+          apply Nat.lt_succ_r.
+          rewrite <- Heqn'.
+          apply Hkn.
+
+          rewrite <- HEqv.
+          rewrite -> Heqn'.
+          rewrite <- succ_minus_1.
+          rewrite -> Heqn' in H.
+          rewrite -> Nat.succ_lt_mono.
+          apply H.
+          
+          unfold double.
+          replace (l * l + l * l) with (2 * l * l) by ring.
+          apply Hf.
+
+          apply Nat.neq_succ_0.
+          apply Nat.neq_succ_0.
+          apply Nat.neq_succ_0.
+          
+        * apply False_ind.
+          apply even_odd_diff with (o := (S n) * (S n)) (e := (double (p * p))).
+          --  exists (p * p).
+              unfold double.
+              ring_simplify.
+              reflexivity.
+          --  apply Nat.Odd_mul.
+              ++  assumption.
+              ++  assumption.
+          --  symmetry in Hf.
+              assumption.
 Qed.
 
-Lemma or_reduce: forall (a: Prop), a \/ a -> a.
-Proof.
-    intros a H.
-    destruct H as [H1 | H2].
-    - assumption.
-    - assumption.
-Qed.
 
 Theorem main_thm: forall (n p : nat), n * n = double (p * p) ->  p = 0.
 Proof.
-    intros n p H.
-    generalize dependent p.
-    apply lt_wf_ind.
-    - assumption.
-    - intros k IH.
-      destruct n as [ | [ | ]].
-      + intros p H.
-        unfold double in H.
-        ring_simplify in H.
-        symmetry in H.
-        destruct Nat.eq_mul_0 with (n := p) (m := p) as [Hf Hb] in H.
-        apply or_reduce in Hf.
-        * assumption.
-        * rewrite <- Nat.mul_assoc in H.
-          apply Nat.eq_mul_0 with (n := 2) (m := p * p) in H.
-          destruct H as [H | H].
-          ++ discriminate H.
-          ++ assumption.
-      + intros p H.
-        apply False_ind.
-        unfold double in H.
-        ring_simplify in H.
-        symmetry in H.
-        rewrite <- Nat.mul_assoc in H.
-        apply Nat.eq_mul_1 with (n := 2) (m := p * p) in H.
-        destruct H as [Hcontr H].
-        discriminate Hcontr.
-      + intros p H.
-        Sibal.
+  intros n p H.
+  destruct (Nat.lt_trichotomy n p) as [Hlt | [Heq | Hgt]].
+  - apply main_thm_aux with (m := p) (n := n) (p := p).
+    + apply Hlt.
+    + assumption.
+  - rewrite -> Heq in H.
+    unfold double in H.
+    rewrite Nat.add_cancel_r with (n := 0) (m := (p * p)) (p := (p * p)) in H.
+    apply sqr_eq_0.
+    symmetry.
+    assumption. 
+  - rewrite -> mul_same with (a := n).
+    ring_simplify.
+    replace (n * n * p) with (n * p * n) by ring.
+    apply main_thm_aux with (m := n * n * n) (n := 2 * p * p) (p := n * p).
+    + unfold double in H.
+      ring_simplify in H.
+      rewrite <- H.
+      rewrite <- Nat.mul_assoc.
+
+      assert (HEvenNN: Nat.Even (n * n)). {
+        exists (p * p).
+        ring_simplify.
+        assumption.
+      }
+
+      assert (HEvenN: Nat.Even n). {
+        apply square_even_then_root_even.
+        assumption.
+      }
+      
+      assert (HNnot0: n <> 0). {
+        unfold not.
+        intro Hf.
+        rewrite -> Hf in Hgt.
+        apply Nat.nlt_0_r with (n := p).
+        assumption.
+      }
+
+      apply mul_is_strictly_monotonic with (k := n) (n := (n * n)).
+      * unfold not.
+        intro Hf.
+        apply sqr_eq_0 in Hf.
+        apply HNnot0.
+        assumption.
+      
+      * assumption.
+
+      * unfold not.
+        intro Hf.
+        apply Nat.Even_Odd_False with (x := n).
+        --  assumption.
+        --  exists 0.
+            simpl.
+            assumption.
+
+    + unfold double.
+      unfold double in H.
+      ring_simplify.
+      replace (2 * p * p * n * n) with (2 * p * p * (n * n)) by ring.
+      ring_simplify in H.
+      rewrite -> H.
+      ring_simplify.
+      reflexivity.
+    + unfold not.
+      intro Hf.
+      rewrite -> Hf in Hgt.
+      apply Nat.nlt_0_r with (n := p).
+      assumption.
 Qed.
