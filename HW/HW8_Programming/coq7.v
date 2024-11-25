@@ -15,7 +15,6 @@ Require Import Even.
 *)
 Require Import Nat.
 Require Import Wf_nat.
-Print LoadPath.
 (* 
   The goal of this assignment is to prove the following theorem: 
 
@@ -185,6 +184,7 @@ Proof.
     apply Nat.add_le_mono.
     + apply IHa.
     + assumption.
+Qed.
 
 Lemma mul_same: forall (n m a: nat), a <> 0 -> n = m <-> a * n = a * m.
 Proof.
@@ -250,11 +250,11 @@ Proof.
   destruct (Nat.Even_or_Odd n) as [He | Ho].
   - assumption.
   - apply False_ind.
-    apply Nat.Odd_mul with (n := n) (m := n) in Ho.
     + apply Nat.Even_Odd_False with (x := n * n).
       * assumption.
-      * assumption.
-    + assumption.
+      * apply Nat.Odd_mul with (n := n) (m := n) in Ho.
+        -- assumption.
+        -- assumption.
 Qed.
 
 Lemma mul_is_strictly_monotonic: forall (n k: nat), n <> 0 -> k <> 0 -> k <> 1 -> n < k * n.
